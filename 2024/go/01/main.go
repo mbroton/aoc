@@ -64,7 +64,7 @@ func getInput(filename string) ([]int, []int, error) {
 		line := strings.TrimSpace(scanner.Text())
 
 		var left, right int
-		_, err := fmt.Sscanf(line, "%d   %d", &left, &right)
+		_, err := fmt.Sscan(line, &left, &right)
 		if err != nil {
 			return nil, nil, err
 		}
