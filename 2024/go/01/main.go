@@ -1,73 +1,81 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"sort"
-	"strconv"
+	"strings"
 )
 
 func main() {
-	// every line in the input is 14 bytes long
-	const lineLen = 14
-
-	f, err := os.Open("input.txt")
+	left, right, err := getInput("input.txt")
 	check(err)
 
-	buffer := make([]byte, lineLen)
-	a := make([]int, 0)
-	b := make([]int, 0)
+	sort.Ints(left)
+	sort.Ints(right)
 
-	for {
-		_, err = f.Read(buffer)
-
-		if err == io.EOF {
-			break
-		}
-
-		check(err)
-
-		line := string(buffer)
-		left, err := strconv.Atoi(line[:5])
-		check(err)
-		right, err := strconv.Atoi(line[8:13])
-		check(err)
-
-		a = append(a, left)
-		b = append(b, right)
-	}
-
-	if len(a) != len(b) {
-		log.Fatal("input error")
-	}
-
-	sort.Ints(a)
-	sort.Ints(b)
-
-	distance := 0
-	var d int
-	for i := range a {
-		d = a[i] - b[i]
-		distance += max(d, -d)
-	}
-
-	// part 1 solution
+	distance := calculateDistance(left, right)
 	fmt.Println("Distance:", distance)
 
+	similarityScore := calculateSimilarity(left, right)
+	fmt.Println("Similarity score:", similarityScore)
+}
+
+func calculateDistance(left, right []int) int {
+	var distance, tmpd int
+
+	for i := range left {
+		tmpd = left[i] - right[i]
+		distance += max(tmpd, -tmpd)
+	}
+
+	return distance
+}
+
+func calculateSimilarity(left, right []int) int {
 	counter := make(map[int]int, 0)
-	for _, v := range b {
+	for _, v := range right {
 		counter[v]++
 	}
 
 	similarityScore := 0
-	for _, v := range a {
+	for _, v := range left {
 		similarityScore += v * counter[v]
 	}
 
-	// part 2 solution
-	fmt.Println("Similarity score:", similarityScore)
+	return similarityScore
+}
+
+func getInput(filename string) ([]int, []int, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer f.Close()
+
+	var leftList, rightList []int
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+
+		var left, right int
+		_, err := fmt.Sscanf(line, "%d   %d", &left, &right)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		leftList = append(leftList, left)
+		rightList = append(rightList, right)
+	}
+
+	if err = scanner.Err(); err != nil {
+		return nil, nil, err
+	}
+
+	return leftList, rightList, nil
 }
 
 func check(e error) {
