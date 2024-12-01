@@ -11,7 +11,9 @@ import (
 
 func main() {
 	left, right, err := getInput("input.txt")
-	check(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	sort.Ints(left)
 	sort.Ints(right)
@@ -76,10 +78,4 @@ func getInput(filename string) ([]int, []int, error) {
 	}
 
 	return leftList, rightList, nil
-}
-
-func check(e error) {
-	if e != nil {
-		log.Fatal(e)
-	}
 }
