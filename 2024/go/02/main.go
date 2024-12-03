@@ -10,13 +10,6 @@ import (
 	"strings"
 )
 
-type Direction int
-
-var (
-	Increasing = 1
-	Decreasing = 2
-)
-
 func isSafe(nums []int) bool {
 	isIncreasing := nums[0] < nums[1]
 	isDecreasing := nums[0] > nums[1]
